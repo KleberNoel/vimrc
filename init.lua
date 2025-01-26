@@ -9,7 +9,7 @@ require("basic")
 --- @type function
 local lazy_setup = require("config.lazy")
 -- $HOME/.config/nvim/lua/config/lazy.lua
-----  $HOME/.config/nvim/lua/conda-env.lua
+---- $HOME/.config/nvim/lua/conda-env.lua
 
 -- Load plugins with Lazy
 ---@type table
