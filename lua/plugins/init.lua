@@ -4,48 +4,19 @@ return {
 		lazy = true,
 	},
 	{ "wsdjeg/vim-lua" },
-	{ "gelguy/wilder.nvim" },
 	{ "preservim/tagbar" }, -- view python objects
 	{ "anuvyklack/windows.nvim" }, -- window resizer
 	{ "numToStr/Comment.nvim" },
 	{ "sheerun/vim-polyglot" },
 	{
-		"zbirenbaum/copilot.lua",
-		dependencies = {
-			"hrsh7th/nvim-cmp",
+		"mason-org/mason-lspconfig.nvim",
+		opts = {
+			ensure_installed = { "lua_ls", "pylint", "ruff" },
 		},
-		cmd = "Copilot",
-		event = "InsertEnter",
-		config = function()
-			require("copilot").setup()
-		end,
-	},
-	{
-		"zbirenbaum/copilot-cmp",
-		after = { "copilot.lua" },
-		config = function()
-			require("copilot_cmp").setup()
-		end,
-	},
-	{
-		"tzachar/cmp-tabnine",
-		build = "./install.sh",
 		dependencies = {
-			"hrsh7th/nvim-cmp",
+			{ "mason-org/mason.nvim", opts = {} },
+			"neovim/nvim-lspconfig",
 		},
-		event = "InsertEnter",
-		setup = function()
-			require("cmp_tabnine.config"):setup({
-				max_lines = 1000,
-				max_num_results = 20,
-				sort = true,
-				run_on_every_keystroke = true,
-				snippet_placeholder = "..",
-				ignored_file_types = {},
-				show_prediction_strength = false,
-				min_percent = 0,
-			})
-		end,
 	},
 	{
 		"rshkarin/mason-nvim-lint",
@@ -60,11 +31,7 @@ return {
 		end,
 	},
 	{
-		"ggml-org/llama.vim",
-		init = function()
-			vim.g.llama_config = {
-				auto_fim = false,
-			}
-		end,
+		"stsewd/isort.nvim",
+		build = ":UpdateRemotePlugins", -- requires the python package isort
 	},
 }

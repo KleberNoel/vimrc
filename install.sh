@@ -15,27 +15,27 @@ check_decision() {
 }
 
 prompt_to_install_conda() {
-    os2kernel="$(uname -a | sed -r 's|.* (.*) .*?\/(.*)$|\2-\1|g')"
+    os2kernel="$(uname -a | rev | cut -d ' ' -f1 | rev)"
     IFS=', ' read -r -a array <<< "$(curl "https://repo.anaconda.com/miniconda/" \
         | awk -F'</*td>' '$2{print $2}' \
         | xargs -n5 | grep "${os2kernel}" | grep "py310" \
-        | sed -re 's/href=(.*?)>.*<\/a>/\1/g;s/<a//g')"
+        | sed 's/href=\([^>]*\).*/\1/g;s/<a//g')" # Using vanilla sed is safer
+
+    if [ "${#array[@]}" -eq 0 ]; then
+        echo "No conda installer found."
+        exit 1
+    fi
     # shellcheck disable=SC2145
     printf "Found conda installer: %s\n" "${array[@]}"
     url_conda_target="https://repo.continuum.io/miniconda/${array[0]}"
     curl -Lo "${array[0]}" "${url_conda_target}"
     sudo chmod +x "${array[0]}"
     bash "${array[0]}" || exit 1
-    check_decision "Install miniconda?" "${cmd}"
     rm "${array[0]}"
 }
 
-check_conda_is_installed() {
-    conda -V >/dev/null 2>&1
-}
 
 create_pynvim_conda_env() {
-    local _REINSTALL_CONDA="$1"
     echo
     echo "* Checking for conda environment location"
     environment_location="$(find / -mindepth 1 -maxdepth 3 -type d -iname "miniconda*" | head -n1)"
@@ -58,16 +58,37 @@ create_pynvim_conda_env() {
 
 
 main() {
-    set -euo pipefail
+    # Working on Ubuntu and Darwin
+    # NOTE: curl must be installed
+    set -euo pipefail # Stop processing if an error is encountered
     REINSTALL_CONDA=false
     echo "* Running nvim setup..."
     echo "* Checking whether nvim is already installed..."
+
+    if [[ "$(uname)" == "Darwin" ]]; then
+      echo "Detected macOS. Installing dependencies with Homebrew..."
+
+      if ! command -v brew &> /dev/null; then
+        echo "Homebrew not found. Installing Homebrew..."
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+      fi
+      brew install jq curl git
+      mkdir -p ~/.config
+    elif [[ "$(uname)" == "Linux" ]]; then
+      echo "Detected Linux. Installing dependencies with apt-get..."
+      sudo apt-get update
+      sudo apt-get install -y jq curl git
+    else
+      echo "Unsupported OS. Exiting."
+      exit 1
+    fi
+
     if nvim -v > /dev/null 2>&1; then
         printf "* Found nvim already installed at %s\n" "$(which nvim)"
     else
-        printf "* Nvim not found!\n" && exit 1
+        echo "* Nvim not found! Please follow the README.md instructions to install" && exit 1
     fi
-    if ! (check_conda_is_installed); then
+    if ! (conda -V >/dev/null 2>&1); then
         prompt_to_install_conda
         echo "Please rerun the installation script after first running . ${HOME}/.bashrc to see if the base conda env is activated"
         rm ./Miniconda*.sh && exit 1
