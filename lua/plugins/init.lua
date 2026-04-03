@@ -9,16 +9,6 @@ return {
 	{ "numToStr/Comment.nvim" },
 	{ "sheerun/vim-polyglot" },
 	{
-		"mason-org/mason-lspconfig.nvim",
-		opts = {
-			ensure_installed = { "lua_ls", "pylint", "ruff" },
-		},
-		dependencies = {
-			{ "mason-org/mason.nvim", opts = {} },
-			"neovim/nvim-lspconfig",
-		},
-	},
-	{
 		"rshkarin/mason-nvim-lint",
 		dependencies = {
 			"mfussenegger/nvim-lint",
