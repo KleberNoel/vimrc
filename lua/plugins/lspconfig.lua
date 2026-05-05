@@ -2,33 +2,37 @@ return {
 	"neovim/nvim-lspconfig",
 	config = function()
 		require("neoconf").setup({})
-		local lspconfig = require("lspconfig")
 
-		-- Ruff LSP
-		lspconfig.ruff.setup {
-			on_attach = function(client, bufnr)
-				-- Ruff only provides diagnostics + code actions,
-				-- disable hover so it doesn't conflict with other servers
-				client.server_capabilities.hoverProvider = false
+		-- Shared on_attach for keymaps
+		local function on_attach(client, bufnr)
+			local opts = { noremap = true, silent = true, buffer = bufnr }
+			vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
+			vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
+			vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
+			vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, opts)
+		end
 
-				local opts = { noremap = true, silent = true, buffer = bufnr }
-				vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
-				vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
-				vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
-				vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, opts)
+		vim.api.nvim_create_autocmd("LspAttach", {
+			callback = function(args)
+				local client = vim.lsp.get_client_by_id(args.data.client_id)
+				if not client then
+					return
+				end
+				on_attach(client, args.buf)
+				-- Ruff: disable hover so it doesn't conflict with Pyright
+				if client.name == "ruff" then
+					client.server_capabilities.hoverProvider = false
+				end
 			end,
-		}
+		})
 
-		-- Optionally also run Pyright (for type checking + hover docs)
-		lspconfig.pyright.setup {
-			on_attach = function(client, bufnr)
-				local opts = { noremap = true, silent = true, buffer = bufnr }
-				vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
-				vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
-			end,
-		}
+		-- Configure servers using the new vim.lsp.config API
+		vim.lsp.config("ruff", {})
+		vim.lsp.config("pyright", {})
+
+		vim.lsp.enable({ "ruff", "pyright" })
 	end,
-		-- in your Lazy spec (e.g. lua/plugins/lsp.lua)
+	-- in your Lazy spec (e.g. lua/plugins/lsp.lua)
 	event = { "BufReadPre", "BufNewFile" }, -- load LSP when opening files
 	--#event = "VeryLazy",
 	lazy = true,

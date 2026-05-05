@@ -10,7 +10,6 @@ This setup is designed to be **powerful, customizable, and beginner-friendly**. 
 - [Installation](#installation)
   - [Prerequisites](#prerequisites)
   - [Setup](#setup)
-  - [Optional: Install Ollama](#optional-install-ollama)
 - [Tips and Shortcuts](#tips-and-shortcuts)
 - [License](#license)
 
@@ -25,7 +24,6 @@ This configuration is built with the following tools:
 - **LSP & CMP** (for smart autocompletion)
 - **Treesitter** (for syntax highlighting)
 - **Fzf-Lua** (for fast file and command search - derived from [Fzf](https://github.com/junegunn/fzf))
-- **Ollama** (optional, for AI-powered code generation)
 
 ## Installation
 
@@ -41,7 +39,7 @@ For instructions see up-to-date Neovim [Releases](https://github.com/neovim/neov
 uname -a | rev | cut -d ' ' -f1 | rev
 ```
 
-Other dependencies include [`jq`](https://jqlang.github.io/jq/) for querying json files; [`curl`](https://curl.se/) for downloading installation files, ollama.nvim, and plenary.nvim; [`npm`](https://www.npmjs.com/) (node package manager), `autotools-dev` and `autoconf`
+Other dependencies include [`jq`](https://jqlang.github.io/jq/) for querying json files; [`curl`](https://curl.se/) for downloading installation files; [`npm`](https://www.npmjs.com/) (node package manager), `autotools-dev` and `autoconf`
 
 To install them, on Ubuntu, run:
 
@@ -68,22 +66,6 @@ Run the installation script [`install.sh`](./install.sh)
 ```bash
 pushd ~/.config/nvim && ./install.sh && popd
 ```
-
-### Optional: Install Ollama
-
-Ollama is useful for generative AI applications.
-
-Generate code candidates using the neovim package: [ollama.nvim](https://github.com/nomnivore/ollama.nvim), or [avante.nvim](https://github.com/yetone/avante.nvim)
-
-```bash
-curl -fsSL https://ollama.com/install.sh | sh
-```
-
-**IMPORTANT**
-
-Check your GPU Virtual RAM (VRAM) can hold a model defined in [`lua/plugins/ollama.lua`](./lua/plugins/ollama.lua), under `opts.model`, configure [`lua/plugins/avante.lua`](./lua/plugins/avante.lua) with the same model under `opts.ollama.model`.
-
----
 
 ##  Tips and Shortcuts
 
